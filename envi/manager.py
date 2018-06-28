@@ -200,4 +200,3 @@ class EnviManager(with_metaclass(EnviMeta)):
                                                           validate=envitype.validate,
                                                           is_ok=envitype.is_ok)
         cls.__configured__ = True
-        print(cls, type(cls), cls.__values__)

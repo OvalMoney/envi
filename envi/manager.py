@@ -1,6 +1,6 @@
 """Manager class for simplified access."""
-from envi import get, get_bool, get_float, get_int, get_str
 from six import with_metaclass
+from envi import get, get_bool, get_float, get_int, get_str
 
 
 class EnviType(object):
@@ -8,8 +8,7 @@ class EnviType(object):
     define how an environment variable should be retrieved, casted and validated.
     """
     def __init__(self, extractor, cast, required, default, validate, is_ok=None):
-        """
-        Initializer
+        """Initializer
 
         :param callable extractor: function to be used to extract the variable from
         the environment. It should be one of the functions defined in envi.
@@ -35,8 +34,7 @@ class EnviType(object):
 
     @classmethod
     def Generic(cls, cast, required=True, default=None, validate=lambda x: None):
-        """
-        Utility initializer for generic environment variable types,
+        """Utility initializer for generic environment variable types,
         needs the casting function to be specified
 
         :param callable cast: casting function, see :py:func:`envi.get`
@@ -51,8 +49,7 @@ class EnviType(object):
 
     @classmethod
     def Bool(cls, is_ok=None, required=True, default=None, validate=lambda x: None):
-        """
-        Utility initializer for boolean environmental variables.
+        """Utility initializer for boolean environmental variables.
 
         :param list(str) is_ok: is_ok: truthy string list, see :py:func:`envi.get_bool`
         :param bool required: required flag, see :py:func:`envi.get`
@@ -66,8 +63,7 @@ class EnviType(object):
 
     @classmethod
     def Float(cls, required=True, default=None, validate=lambda x: None):
-        """
-        Utility initializer for float environmental variables.
+        """Utility initializer for float environmental variables.
 
         :param bool required: required flag, see :py:func:`envi.get`
         :param any default: default value, see :py:func:`envi.get`
@@ -80,8 +76,7 @@ class EnviType(object):
 
     @classmethod
     def Int(cls, required=True, default=None, validate=lambda x: None):
-        """
-        Utility initializer for int environmental variables.
+        """Utility initializer for int environmental variables.
 
         :param bool required: required flag, see :py:func:`envi.get`
         :param any default: default value, see :py:func:`envi.get`
@@ -94,8 +89,7 @@ class EnviType(object):
 
     @classmethod
     def String(cls, required=True, default=None, validate=lambda x: None):
-        """
-        Utility initializer for string environmental variables.
+        """Utility initializer for string environmental variables.
 
         :param bool required: required flag, see :py:func:`envi.get`
         :param any default: default value, see :py:func:`envi.get`
@@ -128,9 +122,7 @@ class EnviMeta(type):
     through class attributes
     """
     def __new__(mcs, name, bases, dct):
-        """
-        Overridden to add the empty `__values__` dict to the new class.
-        """
+        """Overridden to add the empty `__values__` dict to the new class."""
         dct["__values__"] = {}
         newclass = super(EnviMeta, mcs).__new__(mcs, name, bases, dct)
         return newclass
@@ -159,8 +151,7 @@ class EnviMeta(type):
 
 
 class EnviManager(with_metaclass(EnviMeta)):
-    """
-    This class should be extended from environment bridges/managers.
+    """This class should be extended from environment bridges/managers.
     When :py:func:`EnviManager.configure` is called, the environmental variables
     are extracted and stored inside the class `__values__` attribute, so they can be
     accessed through class attributes, thanks to the overriding of :py:func:`EnviMeta.__getattr__`.
@@ -170,13 +161,13 @@ class EnviManager(with_metaclass(EnviMeta)):
 
     @classmethod
     def configure(cls):
-        """
-        Cycles through the `__configuration__` dictionary, where the keys are the environmental
+        """Cycles through the `__configuration__` dictionary, where the keys are the environmental
         variables names and the values are `EnviType` instances.
         For each env variable, it uses the `extractor` function to extract them from the environment
         and store them into the class `__values__` attribute as a dict, so their values can be later
         retrieved as class attributes with name corresponding to the variable name.
-        :return:
+
+        :raises AttributeError: if `__configuration__` is not properly defined.
         """
         if not cls.__configuration__ or not isinstance(cls.__configuration__, dict):
             msg = "You need to define the __configuration__ as a dict with the environment " \

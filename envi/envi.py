@@ -9,14 +9,14 @@ __all__ = [
 IS_OK = ['True', ]
 
 
-def get(name, cast, required=True, default=None, validate=lambda x: None):
+def get(name, cast, required=True, default=None, validate=lambda x: None, **kwargs):
     """Get name from env.
 
     :param str name: The variable name
-    :param callabe cast: The fuction who cast the variable
+    :param callable cast: The function who cast the variable
     :param bool required: Default True
     :param any default: if `required` default is ignored
-    :param callabe validate: The fuction who validate the variable
+    :param callable validate: The function who validates the variable
 
     :return: variable
     :rtype: same as `cast` return
@@ -26,7 +26,7 @@ def get(name, cast, required=True, default=None, validate=lambda x: None):
     """
 
     if not callable(cast):
-        msg = 'cast: {} is not a callabe'.format(
+        msg = 'cast: {} is not a callable'.format(
             cast.__class__.__name__
         )
         raise ValueError(msg)

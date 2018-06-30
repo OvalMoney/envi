@@ -304,3 +304,25 @@ def test_bridge_bad_conf(monkeypatch):
     assert str(e.value) == "All values in the __configuration__ attribute should be instances of `EnviType`"
 
 
+def test_additional_configuration(monkeypatch):
+    monkeypatch.setenv('VAR1', 'True')
+    monkeypatch.setenv('VAR2', 'True')
+
+    class EnviBridge(EnviManager):
+        __configuration__ = {
+            "VAR1": EnviType.String(),
+        }
+
+    class EnviBridgeInheriting(EnviBridge):
+        __configuration__ = {
+            "VAR1": EnviType.Bool(),
+            "VAR2": EnviType.Bool(),
+        }
+
+    EnviBridgeInheriting.configure()
+    assert EnviBridgeInheriting.VAR1 is True
+    assert EnviBridgeInheriting.VAR2 is True
+    with pytest.raises(EnviNotConfigured) as e:
+        getattr(EnviBridge, "VAR1")
+    assert str(e.value) == "You need to .configure() the class first."
+

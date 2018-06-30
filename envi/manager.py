@@ -122,7 +122,15 @@ class EnviMeta(type):
     through class attributes
     """
     def __new__(mcs, name, bases, dct):
-        """Overridden to add the empty `__values__` dict to the new class."""
+        """Overridden to add the empty `__values__` dict to the new class.
+        Also, the `__configuration__` attribute gets inherited and extended
+        by subclasses instead of being overridden."""
+        baseconf = {}
+        for baseclass in bases:
+            if isinstance(baseclass, EnviManager):
+                baseconf.update(getattr(baseclass, "__configuration__", {}))
+        baseconf.update(dct.get("__configuration__") or {})
+        dct["__configuration__"] = baseconf
         dct["__values__"] = {}
         newclass = super(EnviMeta, mcs).__new__(mcs, name, bases, dct)
         return newclass

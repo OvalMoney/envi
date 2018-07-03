@@ -8,7 +8,6 @@ class EnviType(object):
     """
     def __init__(self, extractor, cast, required, default, validate, is_ok=None):
         """Initializer
-
         :param callable extractor: function to be used to extract the variable from
         the environment. It should be one of the functions defined in envi.
         :param callable cast: casting function, see :py:func:`envi.get`

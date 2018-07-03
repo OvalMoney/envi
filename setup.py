@@ -11,8 +11,12 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     HISTORY = history_file.read()
 
-with open('requirements_dev.txt') as requirements_file:
-    DEV_REQUIREMENTS = requirements_file.read().splitlines()
+try:
+    with open('requirements_dev.txt') as requirements_file:
+        DEV_REQUIREMENTS = requirements_file.read().splitlines()
+except FileNotFoundError:  # tox builds
+    DEV_REQUIREMENTS = []
+
 
 REQUIREMENTS = []
 
@@ -41,6 +45,7 @@ setup(
     keywords='envi',
     name='envi',
     packages=find_packages(include=['envi']),
+    package_data={'envi': ['requirements_dev.txt']},
     setup_requires=SETUP_REQUIREMENTS,
     test_suite='tests',
     tests_require=TEST_REQUIREMENTS,

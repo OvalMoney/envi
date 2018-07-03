@@ -11,22 +11,23 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     HISTORY = history_file.read()
 
+with open('requirements_dev.txt') as history_file:
+    DEV_REQUIREMENTS = history_file.read().splitlines()
+
 REQUIREMENTS = []
 
 SETUP_REQUIREMENTS = ['pytest-runner', ]
 
-TEST_REQUIREMENTS = ['pytest', ]
+TEST_REQUIREMENTS = DEV_REQUIREMENTS
 
 setup(
-    author="Simone Basso",
-    author_email='simone.basso1990@gmail.com',
+    author="Walter Danilo Galante",
+    author_email='walterdangalante@gmail.com',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
-        "Programming Language :: Python :: 2",
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
@@ -43,7 +44,7 @@ setup(
     setup_requires=SETUP_REQUIREMENTS,
     test_suite='tests',
     tests_require=TEST_REQUIREMENTS,
-    url='https://github.com/simobasso/envi',
+    url='https://github.com/OvalMoney/envi',
     version='0.1.0',
     zip_safe=False,
 )

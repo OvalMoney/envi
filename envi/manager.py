@@ -1,5 +1,4 @@
 """Manager class for simplified access."""
-from six import with_metaclass
 from envi import get, get_bool, get_float, get_int, get_str
 
 
@@ -33,7 +32,7 @@ class EnviType(object):
     Missing = EnviMissing()
 
     @classmethod
-    def Generic(cls, cast, required=True, default=None, validate=lambda x: None):
+    def generic(cls, cast, required=True, default=None, validate=lambda x: None):
         """Utility initializer for generic environment variable types,
         needs the casting function to be specified
 
@@ -48,7 +47,7 @@ class EnviType(object):
         return cls(extractor=get, cast=cast, required=required, default=default, validate=validate)
 
     @classmethod
-    def Bool(cls, is_ok=None, required=True, default=None, validate=lambda x: None):
+    def bool(cls, is_ok=None, required=True, default=None, validate=lambda x: None):
         """Utility initializer for boolean environmental variables.
 
         :param list(str) is_ok: is_ok: truthy string list, see :py:func:`envi.get_bool`
@@ -62,7 +61,7 @@ class EnviType(object):
         return cls(extractor=get_bool, cast=None, required=required, default=default, validate=validate, is_ok=is_ok)
 
     @classmethod
-    def Float(cls, required=True, default=None, validate=lambda x: None):
+    def float(cls, required=True, default=None, validate=lambda x: None):
         """Utility initializer for float environmental variables.
 
         :param bool required: required flag, see :py:func:`envi.get`
@@ -75,7 +74,7 @@ class EnviType(object):
         return cls(extractor=get_float, cast=None, required=required, default=default, validate=validate)
 
     @classmethod
-    def Int(cls, required=True, default=None, validate=lambda x: None):
+    def int(cls, required=True, default=None, validate=lambda x: None):
         """Utility initializer for int environmental variables.
 
         :param bool required: required flag, see :py:func:`envi.get`
@@ -88,7 +87,7 @@ class EnviType(object):
         return cls(extractor=get_int, cast=None, required=required, default=default, validate=validate)
 
     @classmethod
-    def String(cls, required=True, default=None, validate=lambda x: None):
+    def string(cls, required=True, default=None, validate=lambda x: None):
         """Utility initializer for string environmental variables.
 
         :param bool required: required flag, see :py:func:`envi.get`
@@ -113,6 +112,12 @@ class EnviNotConfigured(AttributeError):
     """Raised if the user tries to access an environment variable
     but the `EnviManager` subclass was not configured yet.
     """
+    pass
+
+
+class EnviAlreadyConfigured(Exception):
+    """Raised if the user tries to call :py:func:`EnviManager.configure`
+    but the class was already configured."""
     pass
 
 
@@ -158,7 +163,7 @@ class EnviMeta(type):
         return value
 
 
-class EnviManager(with_metaclass(EnviMeta)):
+class EnviManager(metaclass=EnviMeta):
     """This class should be extended from environment bridges/managers.
     When :py:func:`EnviManager.configure` is called, the environmental variables
     are extracted and stored inside the class `__values__` attribute, so they can be
@@ -175,8 +180,11 @@ class EnviManager(with_metaclass(EnviMeta)):
         and store them into the class `__values__` attribute as a dict, so their values can be later
         retrieved as class attributes with name corresponding to the variable name.
 
+        :raises EnviAlreadyConfigured: if the class was already configured.
         :raises AttributeError: if `__configuration__` is not properly defined.
         """
+        if cls.__configured__ is True:
+            raise EnviAlreadyConfigured()
         if not cls.__configuration__ or not isinstance(cls.__configuration__, dict):
             msg = "You need to define the __configuration__ as a dict with the environment " \
                   "variables names as keys and `EnviType`s instances as values"

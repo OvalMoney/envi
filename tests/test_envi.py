@@ -14,7 +14,7 @@ def test_not_valid_cast(monkeypatch):
     monkeypatch.setenv('VAR', 'str')
     with pytest.raises(ValueError) as e:
         get('VAR', None)
-    assert str(e.value) == 'cast: NoneType is not a callabe'
+    assert str(e.value) == 'cast: NoneType is not a callable'
 
 
 def test_fail_validation(invalid, monkeypatch):

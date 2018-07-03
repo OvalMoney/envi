@@ -1,6 +1,6 @@
 """Top-level package for envi."""
 from .envi import (
-    get, get_int, get_bool, get_float, get_str  # noqa
+    get, get_int, get_bool, get_float, get_str, mk_shortcut  # noqa
 )
 
 __all__ = [

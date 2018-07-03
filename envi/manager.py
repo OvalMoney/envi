@@ -74,7 +74,7 @@ class EnviType(object):
         return cls(extractor=get_float, cast=None, required=required, default=default, validate=validate)
 
     @classmethod
-    def int(cls, required=True, default=None, validate=lambda x: None):
+    def integer(cls, required=True, default=None, validate=lambda x: None):
         """Utility initializer for int environmental variables.
 
         :param bool required: required flag, see :py:func:`envi.get`

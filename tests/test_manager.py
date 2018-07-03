@@ -23,7 +23,7 @@ def test_bridge_int(monkeypatch):
 
     class EnviBridge(EnviManager):
         __configuration__ = {
-            "VAR": EnviType.int(),
+            "VAR": EnviType.integer(),
         }
 
     EnviBridge.configure()
@@ -36,7 +36,7 @@ def test_bridge_int_error(monkeypatch):
 
     class EnviBridge(EnviManager):
         __configuration__ = {
-            "VAR": EnviType.int(),
+            "VAR": EnviType.integer(),
         }
 
     with pytest.raises(ValueError) as e:
@@ -139,7 +139,7 @@ def test_bridge_validate_ok(monkeypatch):
 
     class EnviBridge(EnviManager):
         __configuration__ = {
-            "VAR": EnviType.int(validate=lower_than_10),
+            "VAR": EnviType.integer(validate=lower_than_10),
         }
 
     EnviBridge.configure()
@@ -157,7 +157,7 @@ def test_bridge_validate_bad(monkeypatch):
 
     class EnviBridge(EnviManager):
         __configuration__ = {
-            "VAR": EnviType.int(validate=lower_than_10),
+            "VAR": EnviType.integer(validate=lower_than_10),
         }
 
     with pytest.raises(ValueError) as e:

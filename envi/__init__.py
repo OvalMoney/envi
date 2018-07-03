@@ -1,10 +1,10 @@
 """Top-level package for envi."""
 from .envi import (
-    get, get_int, get_bool, get_float, get_str # noqa
+    get, get_int, get_bool, get_float, get_str  # noqa
 )
 
 __all__ = [
-    'get', 'get_float', 'get_int', 'get_bool', 'get_str'
+    'get', 'get_float', 'get_int', 'get_bool', 'get_str', 'mk_shortcut'
 ]
 
 __author__ = """Simone Basso"""

@@ -115,3 +115,23 @@ Shortcut
     >>> var = envi.get_float('VAR')  # VAR=1.0
     >>> print(var, type(var))
     1.0 <type 'float'>
+
+EnviManager
+======================
+
+You can use the class :py:class:`EnviManager` to automate
+the extraction of environment variables with a declarative syntax::
+
+    >>> from envi.manager import EnviManager, EnviType
+    >>> class EnvBridge(EnviManager):
+    ...     ___configuration__ = {
+    ...         "MY_STRING": EnviType.string(),
+    ...         "MY_BOOLEAN": EnviType.boolean(),
+    ...         "MY_INT": EnviType.integer(),
+    ...         "MY_FLOAT": EnviType.float(),
+    ...         "MY_JSON": EnviType.generic(cast=json.dumps)
+    ...     }
+    >>> EnvBridge.configure() # This is when the variables are extracted from the environment
+    >>> print(EnvBridge.MY_STRING, type(EnvBridge.MY_STRING)) # You can access the env variables as a class property of your class
+    Value of environment variable MY_STRING <class 'str'>
+

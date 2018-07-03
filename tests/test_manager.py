@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Tests for `envi` package."""
 import pytest
-from envi.manager import EnviManager, EnviType, EnviNotConfigured, EnviUndefined
+from envi.manager import EnviManager, EnviType, EnviNotConfigured, EnviUndefined, EnviAlreadyConfigured
 import json
 
 
@@ -10,7 +10,7 @@ def test_bridge_str(monkeypatch):
 
     class EnviBridge(EnviManager):
         __configuration__ = {
-            "VAR": EnviType.String(),
+            "VAR": EnviType.string(),
         }
 
     EnviBridge.configure()
@@ -23,7 +23,7 @@ def test_bridge_int(monkeypatch):
 
     class EnviBridge(EnviManager):
         __configuration__ = {
-            "VAR": EnviType.Int(),
+            "VAR": EnviType.integer(),
         }
 
     EnviBridge.configure()
@@ -36,7 +36,7 @@ def test_bridge_int_error(monkeypatch):
 
     class EnviBridge(EnviManager):
         __configuration__ = {
-            "VAR": EnviType.Int(),
+            "VAR": EnviType.integer(),
         }
 
     with pytest.raises(ValueError) as e:
@@ -53,7 +53,7 @@ def test_bridge_float(monkeypatch):
 
     class EnviBridge(EnviManager):
         __configuration__ = {
-            "VAR": EnviType.Float(),
+            "VAR": EnviType.float(),
         }
 
     EnviBridge.configure()
@@ -66,7 +66,7 @@ def test_bridge_float_error(monkeypatch):
 
     class EnviBridge(EnviManager):
         __configuration__ = {
-            "VAR": EnviType.Float(),
+            "VAR": EnviType.float(),
         }
 
     with pytest.raises(ValueError) as e:
@@ -83,7 +83,7 @@ def test_bridge_bool(monkeypatch):
 
     class EnviBridge(EnviManager):
         __configuration__ = {
-            "VAR": EnviType.Bool(),
+            "VAR": EnviType.bool(),
         }
 
     EnviBridge.configure()
@@ -96,7 +96,7 @@ def test_bridge_bool_false(monkeypatch):
 
     class EnviBridge(EnviManager):
         __configuration__ = {
-            "VAR": EnviType.Bool(),
+            "VAR": EnviType.bool(),
         }
 
     EnviBridge.configure()
@@ -109,7 +109,7 @@ def test_bridge_bool_anything(monkeypatch):
 
     class EnviBridge(EnviManager):
         __configuration__ = {
-            "VAR": EnviType.Bool(),
+            "VAR": EnviType.bool(),
         }
 
     EnviBridge.configure()
@@ -122,7 +122,7 @@ def test_bridge_generic(monkeypatch):
 
     class EnviBridge(EnviManager):
         __configuration__ = {
-            "VAR": EnviType.Generic(lambda x: x.upper()),
+            "VAR": EnviType.generic(lambda x: x.upper()),
         }
 
     EnviBridge.configure()
@@ -139,7 +139,7 @@ def test_bridge_validate_ok(monkeypatch):
 
     class EnviBridge(EnviManager):
         __configuration__ = {
-            "VAR": EnviType.Int(validate=lower_than_10),
+            "VAR": EnviType.integer(validate=lower_than_10),
         }
 
     EnviBridge.configure()
@@ -157,7 +157,7 @@ def test_bridge_validate_bad(monkeypatch):
 
     class EnviBridge(EnviManager):
         __configuration__ = {
-            "VAR": EnviType.Int(validate=lower_than_10),
+            "VAR": EnviType.integer(validate=lower_than_10),
         }
 
     with pytest.raises(ValueError) as e:
@@ -174,7 +174,7 @@ def test_bridge_cast(monkeypatch):
 
     class EnviBridge(EnviManager):
         __configuration__ = {
-            "VAR": EnviType.Generic(cast=json.loads),
+            "VAR": EnviType.generic(cast=json.loads),
         }
 
     EnviBridge.configure()
@@ -186,7 +186,7 @@ def test_bridge_required_ok(monkeypatch):
 
     class EnviBridge(EnviManager):
         __configuration__ = {
-            "VAR": EnviType.String(required=True),
+            "VAR": EnviType.string(required=True),
         }
 
     EnviBridge.configure()
@@ -196,7 +196,7 @@ def test_bridge_required_ok(monkeypatch):
 def test_bridge_not_required():
     class EnviBridge(EnviManager):
         __configuration__ = {
-            "VAR": EnviType.String(required=False),
+            "VAR": EnviType.string(required=False),
         }
 
     EnviBridge.configure()
@@ -206,7 +206,7 @@ def test_bridge_not_required():
 def test_bridge_required_bad():
     class EnviBridge(EnviManager):
         __configuration__ = {
-            "VAR": EnviType.String(required=True),
+            "VAR": EnviType.string(required=True),
         }
 
     with pytest.raises(AttributeError) as e:
@@ -221,7 +221,7 @@ def test_bridge_required_bad():
 def test_bridge_default():
     class EnviBridge(EnviManager):
         __configuration__ = {
-            "VAR": EnviType.String(required=False, default="test"),
+            "VAR": EnviType.string(required=False, default="test"),
         }
 
     EnviBridge.configure()
@@ -237,11 +237,11 @@ def test_bridge_custom_is_ok(monkeypatch):
 
     class EnviBridge(EnviManager):
         __configuration__ = {
-            "VAR1": EnviType.Bool(is_ok=["True"]),
-            "VAR2": EnviType.Bool(is_ok=["true"]),
-            "VAR3": EnviType.Bool(is_ok=["True"]),
-            "VAR4": EnviType.Bool(is_ok=["true"]),
-            "VAR5": EnviType.Bool(is_ok=["true", "True"]),
+            "VAR1": EnviType.bool(is_ok=["True"]),
+            "VAR2": EnviType.bool(is_ok=["true"]),
+            "VAR3": EnviType.bool(is_ok=["True"]),
+            "VAR4": EnviType.bool(is_ok=["true"]),
+            "VAR5": EnviType.bool(is_ok=["true", "True"]),
         }
 
     EnviBridge.configure()
@@ -257,7 +257,7 @@ def test_bridge_not_configured(monkeypatch):
 
     class EnviBridge(EnviManager):
         __configuration__ = {
-            "VAR": EnviType.Bool(),
+            "VAR": EnviType.bool(),
         }
 
     with pytest.raises(EnviNotConfigured) as e:
@@ -270,7 +270,7 @@ def test_bridge_bad_name(monkeypatch):
 
     class EnviBridge(EnviManager):
         __configuration__ = {
-            "VAR": EnviType.Bool(),
+            "VAR": EnviType.bool(),
         }
 
     EnviBridge.configure()
@@ -310,13 +310,13 @@ def test_additional_configuration(monkeypatch):
 
     class EnviBridge(EnviManager):
         __configuration__ = {
-            "VAR1": EnviType.String(),
+            "VAR1": EnviType.string(),
         }
 
     class EnviBridgeInheriting(EnviBridge):
         __configuration__ = {
-            "VAR1": EnviType.Bool(),
-            "VAR2": EnviType.Bool(),
+            "VAR1": EnviType.bool(),
+            "VAR2": EnviType.bool(),
         }
 
     EnviBridgeInheriting.configure()
@@ -326,3 +326,15 @@ def test_additional_configuration(monkeypatch):
         getattr(EnviBridge, "VAR1")
     assert str(e.value) == "You need to .configure() the class first."
 
+
+def test_double_call_to_configure(monkeypatch):
+    monkeypatch.setenv('VAR1', 'True')
+
+    class EnviBridge(EnviManager):
+        __configuration__ = {
+            "VAR1": EnviType.string(),
+        }
+
+    EnviBridge.configure()
+    with pytest.raises(EnviAlreadyConfigured) as e:
+        EnviBridge.configure()

@@ -3,8 +3,8 @@ from envi import get, get_bool, get_float, get_int, get_str
 
 
 class EnviType(object):
-    """Used in the __configuration__ of `EnviManager`, it should be used to
-    define how an environment variable should be retrieved, casted and validated.
+    """Used to configure a subclass of `EnviManager`, defines
+    how an environment variable should be retrieved, casted and validated.
     """
     def __init__(self, extractor, cast, required, default, validate, is_ok=None):
         """Initializer
@@ -22,13 +22,6 @@ class EnviType(object):
         self.default = default
         self.validate = validate
         self.is_ok = is_ok
-
-    class EnviMissing(object):
-        """Utility class to distinguish missing
-        enviroment variables from None/False ones."""
-        pass
-
-    Missing = EnviMissing()
 
     @classmethod
     def generic(cls, cast, required=True, default=None, validate=lambda x: None):
@@ -99,15 +92,7 @@ class EnviType(object):
         return cls(extractor=get_str, cast=None, required=required, default=default, validate=validate)
 
 
-class EnviUndefined(AttributeError):
-    """Raised if the user tries to access an environment variable
-    that was not defined in the `__configuration__` attribute of
-    the `EnviManager` subclass.
-    """
-    pass
-
-
-class EnviNotConfigured(AttributeError):
+class EnviNotConfigured(Exception):
     """Raised if the user tries to access an environment variable
     but the `EnviManager` subclass was not configured yet.
     """
@@ -120,89 +105,54 @@ class EnviAlreadyConfigured(Exception):
     pass
 
 
-class EnviMeta(type):
-    """Metaclass for `EnviManager`. Overrides the `__getattr__` magic method to
-    provide better error handling and direct access to environment variables
-    through class attributes
+class EnviManager:
     """
-    def __new__(mcs, name, bases, dct):
-        """Overridden to add the empty `__values__` dict to the new class.
-        Also, the `__configuration__` attribute gets inherited and extended
-        by subclasses instead of being overridden."""
-        baseconf = {}
-        for baseclass in bases:
-            if isinstance(baseclass, EnviManager):
-                baseconf.update(getattr(baseclass, "__configuration__", {}))
-        baseconf.update(dct.get("__configuration__") or {})
-        dct["__configuration__"] = baseconf
-        dct["__values__"] = {}
-        newclass = super(EnviMeta, mcs).__new__(mcs, name, bases, dct)
-        return newclass
+    Singleton class that will retrieve and hold the values of environment variables
+    when :py:func:`EnviManager.configure` is called. The environment variable
+    names should be declared as class attributes of type :py:class:`EnviType`.
+    """
+    __instance = None
 
-    def __getattr__(cls, item):
-        """Called when the user tries to access an environment variable
-        using his class attributes.
+    def __new__(cls, *args, **kwargs):
+        """Overrides calls to :py:func:`EnviManager()` to instantiate a new object
+        to return the singleton instance instead of a new instance.
 
-        :param item: the name of the environment variable.
-        :return: the environment variable named as the `item` attribute.
-        :rtype: depending on the `__configuration__`.
-
-        :raises EnviUndefined: if the environment variable was not defined in the `__configuration__`.
-        :raises EnviNotConfigured: if the class was not configured yet.
+        :return: The singleton instance
+        :rtype: EnviManager
+        :raises EnviNotConfigured: if the class was not configured using :py:func:`EnviType.configure`
         """
-        value = cls.__values__.get(item, EnviType.Missing)
-        if value is EnviType.Missing:
-            if cls.__configured__:
-                msg = "The environment variable {item} was not " \
-                      "defined in the class __configuration__".format(item=item)
-                raise EnviUndefined(msg)
-            else:
-                msg = "You need to .configure() the class first."
-                raise EnviNotConfigured(msg)
-        return value
-
-
-class EnviManager(metaclass=EnviMeta):
-    """This class should be extended from environment bridges/managers.
-    When :py:func:`EnviManager.configure` is called, the environmental variables
-    are extracted and stored inside the class `__values__` attribute, so they can be
-    accessed through class attributes, thanks to the overriding of :py:func:`EnviMeta.__getattr__`.
-    """
-    __configured__ = False
-    __configuration__ = None
+        if cls.__instance is None:
+            raise EnviNotConfigured()
+        return cls.__instance
 
     @classmethod
     def configure(cls):
-        """Cycles through the `__configuration__` dictionary, where the keys are the environmental
-        variables names and the values are `EnviType` instances.
-        For each env variable, it uses the `extractor` function to extract them from the environment
-        and store them into the class `__values__` attribute as a dict, so their values can be later
-        retrieved as class attributes with name corresponding to the variable name.
+        """Should be called before trying to retrieve the value of environment variables.
+        It will instantiate the singleton instance, and for every class attribute
+        of type :py:class:`EnviType` it will extract the environment variable
+        with the name of the attribute itself, and the value retrieved will be stored
+        as attribute in the singleton instance.
 
-        :raises EnviAlreadyConfigured: if the class was already configured.
-        :raises AttributeError: if `__configuration__` is not properly defined.
+        :raises EnviAlreadyConfigured: if called multiple times on the same class.
         """
-        if cls.__configured__ is True:
+        if cls.__instance is not None:
             raise EnviAlreadyConfigured()
-        if not cls.__configuration__ or not isinstance(cls.__configuration__, dict):
-            msg = "You need to define the __configuration__ as a dict with the environment " \
-                  "variables names as keys and `EnviType`s instances as values"
-            raise AttributeError(msg)
-        for name, envitype in cls.__configuration__.items():
-            if not isinstance(envitype, EnviType):
-                msg = "All values in the __configuration__ attribute should be instances of `EnviType`"
-                raise AttributeError(msg)
-            if envitype.cast:
-                cls.__values__[name] = envitype.extractor(name=name,
-                                                          cast=envitype.cast,
-                                                          required=envitype.required,
-                                                          default=envitype.default,
-                                                          validate=envitype.validate,
-                                                          is_ok=envitype.is_ok)
-            else:
-                cls.__values__[name] = envitype.extractor(name=name,
-                                                          required=envitype.required,
-                                                          default=envitype.default,
-                                                          validate=envitype.validate,
-                                                          is_ok=envitype.is_ok)
-        cls.__configured__ = True
+        cls.__instance = object.__new__(cls)
+        for attribute_name in dir(cls):
+            attribute = getattr(cls, attribute_name)
+            if isinstance(attribute, EnviType):
+                if attribute.cast:
+                    value = attribute.extractor(name=attribute_name,
+                                                cast=attribute.cast,
+                                                required=attribute.required,
+                                                default=attribute.default,
+                                                validate=attribute.validate,
+                                                is_ok=attribute.is_ok)
+                else:
+                    value = attribute.extractor(name=attribute_name,
+                                                required=attribute.required,
+                                                default=attribute.default,
+                                                validate=attribute.validate,
+                                                is_ok=attribute.is_ok)
+                setattr(cls.__instance, attribute_name, value)
+

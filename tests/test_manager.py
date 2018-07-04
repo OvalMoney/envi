@@ -314,3 +314,35 @@ def test_is_singleton(monkeypatch):
     env1 = EnviBridge()
     env2 = EnviBridge()
     assert env1 is env2
+
+
+def test_no_config_inheritance(monkeypatch):
+    monkeypatch.setenv('VAR1', 'True')
+    monkeypatch.setenv('VAR2', 'True')
+
+    class EnviBridge(EnviManager):
+        VAR1 = EnviType.string()
+
+    EnviBridge.configure()
+    assert EnviBridge().VAR1 == "True"
+
+    class EnviBridgeInheriting(EnviBridge):
+        VAR1 = EnviType.bool()
+        VAR2 = EnviType.bool()
+
+    assert EnviBridgeInheriting.is_configured() is False
+    EnviBridgeInheriting.configure()
+    assert EnviBridgeInheriting().VAR1 is True
+    assert EnviBridgeInheriting().VAR2 is True
+    assert EnviBridge().VAR1 == "True"
+
+
+def test_is_configured(monkeypatch):
+    monkeypatch.setenv('VAR1', 'True')
+
+    class EnviBridge(EnviManager):
+        VAR1 = EnviType.string()
+
+    assert EnviBridge.is_configured() is False
+    EnviBridge.configure()
+    assert EnviBridge.is_configured() is True

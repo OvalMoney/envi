@@ -123,15 +123,24 @@ You can use the class :py:class:`EnviManager` to automate
 the extraction of environment variables with a declarative syntax::
 
     >>> from envi.manager import EnviManager, EnviType
+    >>>
     >>> class EnvBridge(EnviManager):
-    ...     ___configuration__ = {
-    ...         "MY_STRING": EnviType.string(),
-    ...         "MY_BOOLEAN": EnviType.boolean(),
-    ...         "MY_INT": EnviType.integer(),
-    ...         "MY_FLOAT": EnviType.float(),
-    ...         "MY_JSON": EnviType.generic(cast=json.dumps)
-    ...     }
+    ...     MY_STRING = EnviType.string()
+    ...     MY_BOOLEAN = EnviType.boolean()
+    ...     MY_INT = EnviType.integer()
+    ...     MY_FLOAT = EnviType.float()
+    ...     MY_JSON = EnviType.generic(cast=json.loads)
+    ...
     >>> EnvBridge.configure() # This is when the variables are extracted from the environment
-    >>> print(EnvBridge.MY_STRING, type(EnvBridge.MY_STRING)) # You can access the env variables as a class property of your class
+    >>> print(EnvBridge().MY_STRING, type(EnvBridge().MY_STRING)) # You can access the env variables as a property of the singleton
     Value of environment variable MY_STRING <class 'str'>
+
+
+*NOTE:* The :py:class:`EnviManager` class is a singleton, hence multiple instantiation of the class will return the same object::
+
+    >>> obj1 = EnviBridge()
+    >>> obj2 = EnviBridge()
+    >>> obj1 is obj2
+    True
+
 

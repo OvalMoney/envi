@@ -121,9 +121,13 @@ class EnviManager:
         :rtype: EnviManager
         :raises EnviNotConfigured: if the class was not configured using :py:func:`EnviType.configure`
         """
-        if cls.__instance is None:
+        if not isinstance(cls.__instance, cls):
             raise EnviNotConfigured()
         return cls.__instance
+
+    @classmethod
+    def is_configured(cls):
+        return isinstance(cls.__instance, cls)
 
     @classmethod
     def configure(cls):
@@ -135,7 +139,7 @@ class EnviManager:
 
         :raises EnviAlreadyConfigured: if called multiple times on the same class.
         """
-        if cls.__instance is not None:
+        if isinstance(cls.__instance, cls):
             raise EnviAlreadyConfigured()
         cls.__instance = object.__new__(cls)
         for attribute_name in dir(cls):

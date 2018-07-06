@@ -117,7 +117,7 @@ Shortcut
     1.0 <type 'float'>
 
 EnviManager
-======================
+===========
 
 You can use the class :py:class:`EnviManager` to automate
 the extraction of environment variables with a declarative syntax::
@@ -135,6 +135,17 @@ the extraction of environment variables with a declarative syntax::
     >>> print(EnvBridge().MY_STRING, type(EnvBridge().MY_STRING)) # You can access the env variables as a property of the singleton
     Value of environment variable MY_STRING <class 'str'>
 
+The :py:class:`EnviManager` class also provides a :py:func:`is_configured` classmethod that returns `True` if the
+class was already configured, otherwise it returns False::
+
+    >>> class EnvBridge2(EnviManager):
+    ...     MY_VAR = EnviType.string()
+    ...
+    >>> EnvBridge2.is_configured()
+    False
+    >>> EnvBridge2.configure()
+    >>> EnvBridge2.is_configured()
+    True
 
 *NOTE:* The :py:class:`EnviManager` class is a singleton, hence multiple instantiation of the class will return the same object::
 
@@ -142,5 +153,4 @@ the extraction of environment variables with a declarative syntax::
     >>> obj2 = EnviBridge()
     >>> obj1 is obj2
     True
-
 

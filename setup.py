@@ -50,6 +50,6 @@ setup(
     test_suite='tests',
     tests_require=TEST_REQUIREMENTS,
     url='https://github.com/OvalMoney/envi',
-    version='0.2.0',
+    version='0.2.1',
     zip_safe=False,
 )

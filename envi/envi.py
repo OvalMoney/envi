@@ -7,6 +7,7 @@ __all__ = [
 ]
 
 IS_OK = ['True', ]
+MISSING_VALUE = object()
 
 
 def get(name, cast, required=True, default=None, validate=lambda x: None, **kwargs):
@@ -31,12 +32,11 @@ def get(name, cast, required=True, default=None, validate=lambda x: None, **kwar
         )
         raise ValueError(msg)
 
-    value = os.environ.get(name)
+    value = os.environ.get(name, MISSING_VALUE)
 
-    if not value:
+    if value is MISSING_VALUE:
         if required:
             raise AttributeError('{} is required'.format(name))
-
         validate(default)
         return default
 

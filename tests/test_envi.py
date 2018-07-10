@@ -97,3 +97,12 @@ def test_get_bool(test, output, monkeypatch):
 def test_get_bool_is_ok(case, monkeypatch):
     monkeypatch.setenv('TRUE', case)
     assert get_bool('TRUE', is_ok=['True', 'yes']) is True
+
+
+def test_missing_different_from_empty(monkeypatch):
+    monkeypatch.setenv('VAR', '')
+
+    assert get('VAR', str) == ''
+    with pytest.raises(AttributeError) as e:
+        get('VAR2', str)
+    assert str(e.value) == 'VAR2 is required'

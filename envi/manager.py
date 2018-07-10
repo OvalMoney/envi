@@ -105,7 +105,7 @@ class EnviAlreadyConfigured(Exception):
     pass
 
 
-class EnviManager:
+class EnviManager(object):
     """
     Singleton class that will retrieve and hold the values of environment variables
     when :py:func:`EnviManager.configure` is called. The environment variable

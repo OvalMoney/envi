@@ -30,7 +30,7 @@ pytest-pylint==0.9.0
 pytest-runner==2.11.1
 pytest==3.4.2
 pytz==2018.3
-pyyaml==3.12
+pyyaml==5.4
 requests-toolbelt==0.8.0
 requests==2.18.4
 six==1.11.0
